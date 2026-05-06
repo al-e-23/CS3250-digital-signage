@@ -75,18 +75,18 @@ async function loadConfig() {
     const staticCycles = staticItems
       .map((item) => Number(item.cycle))
       .filter((value) => Number.isFinite(value) && value > 0);
-
     staticRefreshTime = staticCycles.length ? Math.min(...staticCycles) : 60;
 
     startClock();
     await renderStaticItems();
     await renderCrypto();
     await renderChicagoArt();
-
     startStaticRefresh();
     startCryptoRefresh();
     startChicagoArtRefresh();
     startRssDisplay();
+    startAutoScroll('feedContent', 0.4, 2000);
+    startAutoScroll('apiContent', 0.3, 3000);
 
   } catch (_err) {
     console.error('Failed to load config:', _err);
@@ -269,6 +269,8 @@ function getWeatherSymbol(code) {
  * @param {string} [title='Weather'] - Display title for the weather card.
  * @returns {Promise<string>} Weather card HTML string.
  */
+// Used Ai to help
+// Prompt: How can we show the weather for the next 3 days
 async function loadWeather(url, title = 'Weather') {
   const res = await fetch(url);
   const data = await res.json();
@@ -279,7 +281,6 @@ async function loadWeather(url, title = 'Weather') {
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   let forecastHTML = '';
-
   for (let i = 1; i <= 3; i++) {
     const parts = data.daily.time[i].split('-');
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
@@ -287,10 +288,9 @@ async function loadWeather(url, title = 'Weather') {
     const high = Math.round(data.daily.temperature_2m_max[i]);
     const low = Math.round(data.daily.temperature_2m_min[i]);
     const icon = getWeatherSymbol(data.daily.weather_code[i]);
-
     forecastHTML += `
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-top: 1px solid rgba(148,163,184,0.2);">
-        <span style="width: 36px; color: #94a3b8;">${day}</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 0; border-top: 1px solid rgba(148,163,184,0.2); font-size: 0.65rem;">
+        <span style="width: 28px; color: #94a3b8;">${day}</span>
         <span>${icon}</span>
         <span style="color: #f87171;">${high}°</span>
         <span style="color: #7dd3fc;">${low}°</span>
@@ -301,10 +301,10 @@ async function loadWeather(url, title = 'Weather') {
   return `
     <div>
       <h2>${escapeHtml(title)}</h2>
-      <p style="font-size: 1.4rem; margin: 4px 0 2px 0;">${symbol}</p>
-      <p style="font-size: 2rem; margin: 4px 0 2px 0;">${temp}°F</p>
-      <p style="margin: 0;">Wind: ${wind} mph</p>
-      <div style="margin-top: 10px;">${forecastHTML}</div>
+      <p style="font-size: 1rem; margin: 2px 0 1px 0;">${symbol}</p>
+      <p style="font-size: 1.2rem; margin: 2px 0 1px 0;">${temp}°F</p>
+      <p style="margin: 0; font-size: 0.7rem;">Wind: ${wind} mph</p>
+      <div style="margin-top: 6px;">${forecastHTML}</div>
     </div>
   `;
 }
@@ -328,7 +328,6 @@ async function loadCryptoChart(item) {
 
   const res = await fetch(url);
   if (!res.ok) throw new Error(`CoinGecko error: ${res.status}`);
-
   const data = await res.json();
   if (!data.prices) throw new Error('No price data in response');
 
@@ -348,7 +347,6 @@ async function loadCryptoChart(item) {
 
   setTimeout(() => {
     const ctx = document.getElementById(chartId);
-
     if (ctx) {
       new Chart(ctx, {
         type: item.chartType || 'line',
@@ -405,6 +403,8 @@ function escapeHtml(str) {
  * @param {number} [maxItems=5] - Maximum number of RSS items to display.
  * @returns {Promise<string>} RSS feed HTML string.
  */
+// Used ai for help with this
+// Prompt: CORSPROXY isn't working can you help with that
 async function loadRss(url, maxItems = 5) {
   const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url);
   const res = await fetch(proxyUrl);
@@ -417,17 +417,14 @@ async function loadRss(url, maxItems = 5) {
   const items = data.items.slice(0, maxItems);
 
   let html = '<div class="article-feed">';
-
   items.forEach((item, i) => {
     const decoded = item.title
       .replaceAll('&amp;', '&')
       .replaceAll('&lt;', '<')
-      .replaceAll('&gt;', '<');
-
+      .replaceAll('&gt;', '>');
     const desc = item.description
       ? stripHtml(item.description).substring(0, 300) + '...'
       : '';
-
     const date = item.pubDate
       ? new Date(item.pubDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
       : '';
@@ -442,7 +439,6 @@ async function loadRss(url, maxItems = 5) {
       </div>
     `;
   });
-
   html += '</div>';
 
   return html;
@@ -472,13 +468,9 @@ function cycleArticles() {
   if (!cards.length) return;
 
   let visible = 0;
-
-  cards.forEach((c, i) => {
-    if (c.style.display !== 'none') visible = i;
-  });
+  cards.forEach((c, i) => { if (c.style.display !== 'none') visible = i; });
 
   cards[visible].style.display = 'none';
-
   const next = (visible + 1) % cards.length;
   cards[next].style.display = 'flex';
 
@@ -543,29 +535,23 @@ async function loadApiCard(item) {
  */
 function probeImages(candidates, timeoutMs = 6000) {
   return new Promise((resolve) => {
-    if (!candidates.length) {
-      resolve(null);
-      return;
-    }
+    if (!candidates.length) { resolve(null); return; }
 
     let failed = 0;
     const timer = setTimeout(() => resolve(null), timeoutMs);
 
     candidates.forEach(({ url, title }) => {
       const img = new Image();
-
       img.onload = () => {
         clearTimeout(timer);
         resolve({ url, title });
       };
-
       img.onerror = () => {
         if (++failed === candidates.length) {
           clearTimeout(timer);
           resolve(null);
         }
       };
-
       img.src = url;
     });
   });
@@ -583,9 +569,7 @@ async function loadChicagoArt() {
     const page = Math.floor(Math.random() * 1200) + 1;
     const url = `https://api.artic.edu/api/v1/artworks?fields=id,title,image_id&limit=10&page=${page}`;
     const res = await fetch(url);
-
     if (!res.ok) throw new Error(`AIC error: ${res.status}`);
-
     const data = await res.json();
 
     if (!data.data || !data.data.length) return '';
@@ -676,13 +660,11 @@ async function showRssItem() {
   }
 
   const item = rssItems[currentRssIndex];
-
   try {
     feedContent.innerHTML = await loadRss(item.URL, item.maxItems || 5);
     articleTimer = setTimeout(cycleArticles, cycleTime * 1000);
   } catch (_err) {
     console.error('Failed to load RSS feed:', _err);
-
     feedContent.innerHTML = `
       <div>
         <h1>Feed Unavailable</h1>
@@ -691,6 +673,49 @@ async function showRssItem() {
       </div>
     `;
   }
+}
+
+/**
+ * Auto-scrolls an element slowly, pauses at the bottom, then resets to top.
+ *
+ * @function startAutoScroll
+ * @param {string} elementId - ID of the element to scroll.
+ * @param {number} speed - Pixels to scroll per active frame.
+ * @param {number} pauseMs - Milliseconds to pause at the bottom before resetting.
+ * @returns {void}
+ */
+function startAutoScroll(elementId, speed, pauseMs) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  let scrolling = true;
+  let frameCount = 0;
+
+  function scroll() {
+    if (!scrolling) return;
+
+    frameCount++;
+    if (frameCount % 3 === 0) {
+      el.scrollTop += speed;
+    }
+
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+      scrolling = false;
+      setTimeout(() => {
+        el.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          scrolling = true;
+          frameCount = 0;
+          scroll();
+        }, 1000);
+      }, pauseMs);
+      return;
+    }
+
+    requestAnimationFrame(scroll);
+  }
+
+  scroll();
 }
 
 /**
