@@ -163,7 +163,39 @@ function buildRssHtml(feedData, maxItems) {
   html += '</div>';
   return html;
 }
+function startAutoScroll(elementId, speed, pauseMs) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
 
+  let scrolling = true;
+  let frameCount = 0;
+
+  function scroll() {
+    if (!scrolling) return;
+
+    frameCount++;
+    if (frameCount % 3 === 0) {
+      el.scrollTop += speed;
+    }
+
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+      scrolling = false;
+      setTimeout(() => {
+        el.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => {
+          scrolling = true;
+          frameCount = 0;
+          scroll();
+        }, 1000);
+      }, pauseMs);
+      return;
+    }
+
+    requestAnimationFrame(scroll);
+  }
+
+  scroll();
+}
 /**
  * Exports reusable helper functions for testing and modular project structure.
  *
@@ -176,4 +208,5 @@ module.exports = {
   stripHtml,
   parseConfig,
   buildRssHtml,
+  startAutoScroll,
 };

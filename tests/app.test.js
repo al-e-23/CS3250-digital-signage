@@ -1,4 +1,4 @@
-const { escapeHtml, getWeatherSymbol, getValuePath, stripHtml, parseConfig, buildRssHtml } = require('../app.module');
+const { escapeHtml, getWeatherSymbol, getValuePath, stripHtml, parseConfig, buildRssHtml, startAutoScroll } = require('../app.module');
 describe('escapeHtml', () => {
     test('escapes ampersands', () => {
         expect(escapeHtml('cats & dogs')).toBe('cats &amp; dogs');
@@ -177,5 +177,15 @@ describe('buildRssHtml', () => {
         };
         const html = buildRssHtml(feed, 5);
         expect(html).not.toContain('<script>');
+    });
+});
+describe('startAutoScroll', () => {
+    test('does nothing when element does not exist', () => {
+        expect(() => startAutoScroll('nonexistent', 1, 1000)).not.toThrow();
+    });
+
+    test('starts scrolling on a real element', () => {
+        document.body.innerHTML = '<div id="testScroll" style="overflow:auto;height:100px;"></div>';
+        expect(() => startAutoScroll('testScroll', 1, 1000)).not.toThrow();
     });
 });
