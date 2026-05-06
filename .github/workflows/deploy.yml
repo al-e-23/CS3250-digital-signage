@@ -2,35 +2,46 @@
 # 1. Go to your repository's "Settings" > "Pages" on the left sidebar.
 # 2. Under "Build and Deployment" > "Source", change the drop down menu to "Github Actions", then save.
 # 3. Go to your repository's "Settings" > on the left sidebar click "Actions" > "General", scroll to the bottom and click "Read & write permissions" is selected, then save.
-
 name: Signage Auto-Deploy
-
 on:
   push:
-    branches: ["main"]  # This triggers the robot whenever someone pushes to main
-  workflow_dispatch:      # This adds a "Run" button so you can test it manually
+    branches: ["main"]
+  workflow_dispatch:
 
-# This is the "Magic" part that makes it work for everyone
 permissions:
   contents: read
   pages: write
   id-token: write
 
 jobs:
-  build-and-deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Run ESLint
+        run: npm run lint
+      - name: Run Jest tests
+        run: npm test
 
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v4
-
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'  # This tells the robot to grab all your project files
-
+          path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
