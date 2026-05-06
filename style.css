@@ -10,6 +10,7 @@ body {
   font-family: 'Segoe UI', sans-serif;
 }
 
+/* ── LANDSCAPE ──────────────────────────────────────────────── */
 #app {
   height: 100vh;
   display: grid;
@@ -19,7 +20,6 @@ body {
   box-sizing: border-box;
 }
 
-/* ── LEFT PANEL ─────────────────────────────────────────────── */
 #infoPanel {
   display: flex;
   flex-direction: column;
@@ -36,7 +36,44 @@ body {
   flex-shrink: 0;
 }
 
-/* ── RIGHT PANEL ────────────────────────────────────────────── */
+.infoCard {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.infoCard h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+#clock {
+  font-size: 2rem;
+  font-weight: 700;
+  padding: 0;
+  margin: 0;
+}
+
+#time {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+#date {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #94a3b8;
+  display: block;
+  margin-top: 4px;
+}
+
+#weather {
+  flex-shrink: 0;
+}
+
 #rightPanel {
   display: flex;
   flex-direction: column;
@@ -59,70 +96,61 @@ body {
 
 #feedContent {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   min-height: 0;
 }
 
-/* ── BOTTOM ROW (3 boxes) ───────────────────────────────────── */
-#bottomRow {
+/* ── BOTTOM GRID ────────────────────────────────────────────── */
+#bottomGrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 180px 180px;
   gap: 16px;
-  height: 220px;
   flex-shrink: 0;
 }
 
-#cryptoContent,
-#harvardContent,
+#bitcoinContent    { grid-column: 1; grid-row: 1; }
+#ethereumContent   { grid-column: 2; grid-row: 1; }
+#dogecoinContent   { grid-column: 3; grid-row: 1; }
+#chicagoArtContent { grid-column: 1 / 3; grid-row: 2; }
 #imageContent {
+  grid-column: 3;
+  grid-row: 2;
+  overflow: hidden;
+}
+
+.bottomBox {
   background: rgba(148, 163, 184, 0.2);
   border: 1px solid rgba(148, 163, 184, 0.4);
   border-radius: 16px;
-  padding: 16px;
+  padding: 12px;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ── SHARED CARD STYLE ──────────────────────────────────────── */
-.panel {
-  background: rgba(148, 163, 184, 0.2);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  border-radius: 16px;
-  padding: 24px;
-  box-sizing: border-box;
-  overflow: hidden;
-  min-height: 0;
+/* ── CRYPTO ─────────────────────────────────────────────────── */
+.cryptoCard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.infoCard {
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 12px;
-  padding: 14px;
-}
-
-.infoCard h2 {
-  margin: 0 0 8px;
-  font-size: 1.1rem;
-}
-
-#clock {
-  font-size: 2rem;
-  font-weight: 700;
-  padding: 0;
-  margin: 0;
-}
-
-#date {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #94a3b8;
-  display: block;
-  margin-top: 4px;
-}
-
-#weather {
+.cryptoCard h3 {
+  margin: 0 0 4px 0;
+  font-size: 0.85rem;
   flex-shrink: 0;
+  color: #e2e8f0;
+}
+
+.chartWrapper {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.chartWrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* ── IMAGE ──────────────────────────────────────────────────── */
@@ -159,6 +187,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .article-date {
@@ -175,6 +204,7 @@ body {
   line-height: 1.2;
   margin: 0 0 20px 0;
   color: #f0f0f0;
+  flex-shrink: 0;
 }
 
 .article-divider {
@@ -183,6 +213,7 @@ body {
   background: #00d4ff;
   border-radius: 2px;
   margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .article-desc {
@@ -200,47 +231,230 @@ body {
   letter-spacing: 1px;
 }
 
+#feedContent a {
+  color: #7dd3fc;
+  text-decoration: none;
+}
+
+.panel {
+  background: rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  min-height: 0;
+}
+
 /* ── PORTRAIT ───────────────────────────────────────────────── */
 @media (orientation: portrait) {
   #app {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    gap: 12px;
-    padding: 12px;
+    grid-template-rows: 15vh 28vh 51vh;
+    gap: 6px;
+    padding: 8px;
+    height: 100vh;
+    box-sizing: border-box;
   }
 
   #infoPanel {
     flex-direction: row;
     flex-wrap: nowrap;
-    overflow-x: hidden;
-    padding: 12px;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
   }
 
   #infoPanel .infoCard {
     flex: 1 1 0;
     min-width: 0;
+    padding: 6px 8px;
+    overflow: hidden;
   }
 
-  #clock {
-    font-size: 1.6rem;
+  #infoPanel .infoCard:nth-child(1) {
+    flex: 0.8 1 0;
+  }
+
+  #infoPanel .infoCard:nth-child(2) {
+    flex: 1.2 1 0;
+  }
+
+  #infoPanel .infoCard:nth-child(3) {
+    flex: 1.2 1 0;
+  }
+
+  #weather div[style*="margin-top"] {
+    display: none !important;
   }
 
   .infoCard h2 {
-    font-size: 0.9rem;
+    font-size: 0.65rem !important;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  #bottomRow {
-    grid-template-columns: 1fr;
-    height: auto;
+  #clock {
+    font-size: 1rem !important;
   }
 
-  #cryptoContent,
-  #harvardContent,
-  #imageContent {
-    height: 160px;
+  #time {
+    font-size: 1rem !important;
+  }
+
+  #date {
+    font-size: 0.55rem !important;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+
+  #weather {
+    font-size: 0.75rem;
+    overflow: hidden;
+  }
+
+  #weather p {
+    font-size: 0.7rem !important;
+    margin: 0 !important;
+  }
+
+  #weather h2 {
+    font-size: 0.65rem !important;
+    margin-bottom: 2px;
+  }
+
+  #apiContent {
+    overflow-y: auto;
+  }
+
+  #apiContent p {
+    font-size: 0.65rem !important;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  #apiContent h2 {
+    font-size: 0.65rem !important;
+    margin-bottom: 2px;
+  }
+
+  #rightPanel {
+    display: contents;
+  }
+
+  #feedPanel {
+    height: 100%;
+    min-height: 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  #feedContent {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  .article-feed {
+    height: 100%;
+  }
+
+  .article-card {
+    height: 100%;
+    padding: 8px 10px;
+    justify-content: flex-start;
+    gap: 4px;
+    box-sizing: border-box;
+  }
+
+  .article-source {
+    margin-bottom: 6px;
+    font-size: 11px !important;
+    letter-spacing: 1px;
+    flex-shrink: 0;
   }
 
   .article-title {
-    font-size: 1.3rem;
+    font-size: 1.1rem !important;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+
+  .article-divider {
+    margin-bottom: 6px;
+    flex-shrink: 0;
+    width: 30px;
+    height: 2px;
+  }
+
+  .article-desc {
+    font-size: 0.85rem !important;
+    line-height: 1.45;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+
+  .article-num {
+    padding-top: 6px;
+    font-size: 10px;
+    margin-top: auto;
+  }
+
+  #bottomGrid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  #bitcoinContent    { grid-column: 1; grid-row: 1; display: block !important; }
+  #ethereumContent   { grid-column: 2; grid-row: 1; display: block !important; }
+  #dogecoinContent   { grid-column: 1; grid-row: 2; display: block !important; }
+  #chicagoArtContent { grid-column: 2; grid-row: 2; display: block !important; }
+  #imageContent      { display: none !important; }
+
+  .bottomBox {
+    padding: 6px;
+    border-radius: 10px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: rgba(148, 163, 184, 0.2);
+    border: 1px solid rgba(148, 163, 184, 0.4);
+  }
+
+  .cryptoCard {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .cryptoCard h3 {
+    font-size: 0.8rem !important;
+    margin-bottom: 2px;
+    flex-shrink: 0;
+  }
+
+  .chartWrapper {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+  }
+
+  .chartWrapper canvas {
+    width: 100% !important;
+    height: 100% !important;
   }
 }
